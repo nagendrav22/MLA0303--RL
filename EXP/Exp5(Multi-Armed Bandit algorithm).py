@@ -1,23 +1,18 @@
-states = 5
+import random
 
-reward = [0,0,0,0,10]
+true_rates=[0.10,0.20,0.15,0.30]
+counts=[0]*4
+values=[0.0]*4
+epsilon=0.1
 
-value = [0]*states
+for _ in range(10000):
+    if random.random()<epsilon:
+        arm=random.randrange(4)
+    else:
+        arm=max(range(4),key=lambda i:values[i])
+    reward=1 if random.random()<true_rates[arm] else 0
+    counts[arm]+=1
+    values[arm]+= (reward-values[arm])/counts[arm]
 
-gamma = 0.9
-
-for i in range(20):
-
-    old = value.copy()
-
-    for s in range(states-1):
-
-        value[s] = max(
-            reward[s]+gamma*old[min(s+1,4)],
-            reward[s]+gamma*old[s]
-        )
-
-print("Optimal State Values")
-
-for i in range(states):
-    print("State",i,"=",round(value[i],2))
+print("Estimated CTR:",values)
+print("Best advertisement:",max(range(4),key=lambda i:values[i])+1)
