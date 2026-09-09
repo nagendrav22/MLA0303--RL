@@ -1,20 +1,24 @@
-import random
+import gymnasium as gym
+import numpy as np
 
-ads = [0, 0, 0]
-count = [0, 0, 0]
-epsilon = 0.2
+env=gym.make("FrozenLake-v1",is_slippery=False)
+Q=np.zeros((env.observation_space.n,env.action_space.n))
+alpha,gamma,epsilon=0.8,0.95,0.1
 
-for i in range(100):
+for _ in range(5000):
+    s,_=env.reset()
+    done=False
+    while not done:
+        a=env.action_space.sample() if np.random.rand()<epsilon else np.argmax(Q[s])
+        ns,r,terminated,truncated,_=env.step(a)
+        done=terminated or truncated
+        Q[s,a]+=alpha*(r+gamma*np.max(Q[ns])*(not done)-Q[s,a])
+        s=ns
 
-    if random.random() < epsilon:
-        ad = random.randint(0, 2)
-    else:
-        ad = ads.index(max(ads))
+s,_=env.reset(); path=[s]
+for _ in range(30):
+    a=np.argmax(Q[s]); s,r,t,tr,_=env.step(a); path.append(s)
+    if t or tr: break
+print("Learned state sequence:",path)
+env.close()
 
-    reward = random.randint(0, 1)  
-
-    count[ad] += 1
-    ads[ad] += (reward - ads[ad]) / count[ad]
-
-print("Click Rates:", ads)
-print("Best Advertisement:", ads.index(max(ads)))
