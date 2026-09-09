@@ -1,15 +1,16 @@
-import random
+import numpy as np
 
-score = 0
+actions=['forward','backward','left','right','stop']
+theta=np.zeros(len(actions))
+lr=0.05
 
-for step in range(10):
-    move = random.choice(["Up", "Down", "Left", "Right"])
+for _ in range(2000):
+    probs=np.exp(theta)/np.sum(np.exp(theta))
+    a=np.random.choice(len(actions),p=probs)
+    reward=1 if a==4 else (-0.1 if a in [0,1] else -0.2)
+    theta[a]+=lr*reward*(1-probs[a])
+    for i in range(len(actions)):
+        if i!=a: theta[i]-=lr*reward*probs[i]
 
-    if random.random() < 0.7:
-        score += 10
-        print(move, "- Food Collected")
-    else:
-        score -= 5
-        print(move, "- Ghost Found")
-
-print("Final Score:", score)
+probs=np.exp(theta)/np.sum(np.exp(theta))
+print(dict(zip(actions,np.round(probs,3))))
