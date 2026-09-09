@@ -1,18 +1,21 @@
-states = 5
+states=['Warehouse','Junction','Customer','Return']
+edges={
+ 'Warehouse':[('Junction',2)],
+ 'Junction':[('Customer',3),('Warehouse',2)],
+ 'Customer':[('Return',1)],
+ 'Return':[]
+}
+V={s:0 for s in states}
+for _ in range(20):
+    new={}
+    for s in states:
+        if not edges[s]: new[s]=0
+        else: new[s]=min(cost+V[ns] for ns,cost in edges[s])
+    V=new
 
-policy = [1,1,1,1,0]
-
-value = [0]*states
-
-reward = [0,0,0,0,10]
-
-gamma = 0.9
-
-for k in range(20):
-    for s in range(states-2,-1,-1):
-        value[s] = reward[s] + gamma*value[s+1]
-
-print("Optimal Values")
-
-for i in range(states):
-    print("State",i,"=",round(value[i],2))
+s='Warehouse'; path=[s]; total=0
+while edges[s]:
+    ns,cost=min(edges[s],key=lambda x:x[1]+V[x[0]])
+    path.append(ns); total+=cost; s=ns
+print("Optimal path:",path)
+print("Minimum travel cost:",total)
