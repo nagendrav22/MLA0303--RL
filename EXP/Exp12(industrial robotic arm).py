@@ -1,17 +1,15 @@
-import random
+import numpy as np
 
-rooms = 5
-cleaned = 0
-energy = 20
+actions=['left','right','up','down']
+preferences=np.zeros(len(actions))
+lr=0.1
 
-for i in range(rooms):
-    action = random.choice(["Clean", "Move"])
+for episode in range(1000):
+    probs=np.exp(preferences)/np.sum(np.exp(preferences))
+    a=np.random.choice(len(actions),p=probs)
+    reward=1 if a in [1,2] else -0.2
+    preferences[a]+=lr*reward
 
-    if action == "Clean":
-        cleaned += 1
-        energy -= 2
-    else:
-        energy -= 1
-
-print("Rooms Cleaned:", cleaned)
-print("Energy Left:", energy)
+probs=np.exp(preferences)/np.sum(np.exp(preferences))
+print("Learned action probabilities:")
+for a,p in zip(actions,probs): print(a,round(float(p),3))
